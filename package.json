@@ -1,0 +1,11 @@
+{
+  "name": "git-trash",
+  "description": "Mass trash for Github repo",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "3.x",
+    "jade"   : "0.2.x"
+  }
+}
+
