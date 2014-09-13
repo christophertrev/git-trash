@@ -3,9 +3,8 @@
   "description": "Mass trash for Github repo",
   "version": "0.0.1",
   "private": true,
-  "dependencies": {
-    "express": "3.x",
-    "jade"   : "0.2.x"
-  }
+  "scripts": {
+    "prepublish": "browserify src/main.js -o bundle.js"
+  },
 }
 
