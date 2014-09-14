@@ -1,8 +1,17 @@
 var RepoBox = React.createClass({
+  handleFetch: function (e) {
+    e.preventDefault();
+    OAuth.initialize('ei8Oo3tvYIssBSbrxeaxVi5v9Ck') //OAuth.io public key
+    OAuth.popup('github').done(function(result) { //OAuth.io provider
+        console.log(result)
+        // do some stuff with result
+    })
+  },
   render: function() {
     return (
       <div className="repoBox">
         <h4>Your repos</h4>
+        <a href-
       </div>
     );
   }
