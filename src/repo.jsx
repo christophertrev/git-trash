@@ -7,10 +7,25 @@ var RepoBox = React.createClass({
     console.log("lol")
     e.preventDefault();
     OAuth.initialize('ei8Oo3tvYIssBSbrxeaxVi5v9Ck') //OAuth.io public key
-    OAuth.popup('github').done(function(result) { //OAuth.io provider
+    OAuth.popup('github')
+      .done(function(result) { //OAuth.io provider
+        //Grab github data
+        var url = "https://api.github.com/user/"
+        $.ajax(url + "repos", {
+          headers: {
+            Accept: "application/vnd.github.v3+json",
+            Authorization: "token " + result.access_token
+          },
+          contentType: 'JSON'
+        })
+        .done(function (data) {
+            console.log(data)
+        })
         console.log(result)
-        // do some stuff with result
-    })
+      })
+      .fail(function () {
+        console.log("Fail")  
+      })
   },
   render: function() {
     var t = this
