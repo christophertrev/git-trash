@@ -1,5 +1,7 @@
+/** @jsx React.DOM */
 var RepoBox = React.createClass({
   handleFetch: function (e) {
+    console.log("lol")
     e.preventDefault();
     OAuth.initialize('ei8Oo3tvYIssBSbrxeaxVi5v9Ck') //OAuth.io public key
     OAuth.popup('github').done(function(result) { //OAuth.io provider
@@ -11,7 +13,7 @@ var RepoBox = React.createClass({
     return (
       <div className="repoBox">
         <h4>Your repos</h4>
-        <button onclick="{this.handleFetch}">Login</button>
+        <button onClick="{this.handleFetch}">Login</button>
       </div>
     );
   }
