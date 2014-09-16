@@ -1,6 +1,9 @@
 /** @jsx React.DOM */
 var RepoBox = React.createClass({
   handleFetch: function (e) {
+    //this.setState({liked: !this.state.liked});
+    //http://stackoverflow.com/questions/24073392/onclick-is-firing-right-away
+    e.preventDefault();
     console.log("lol")
     e.preventDefault();
     OAuth.initialize('ei8Oo3tvYIssBSbrxeaxVi5v9Ck') //OAuth.io public key
@@ -10,10 +13,11 @@ var RepoBox = React.createClass({
     })
   },
   render: function() {
+    var t = this
     return (
       <div className="repoBox">
         <h4>Your repos</h4>
-        <button onClick="{this.handleFetch}">Login</button>
+        <button onClick={this.handleFetch}>Login</button>
       </div>
     );
   }
