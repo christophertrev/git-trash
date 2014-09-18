@@ -14,4 +14,4 @@ logs
 results
 
 npm-debug.log
-build
+build/.module-cache
