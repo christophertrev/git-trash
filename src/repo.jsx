@@ -27,7 +27,7 @@ var RepoItem = React.createClass({
     var url = "http://github.com" + this.props.repo.full_name;
     return (
       <tr className="repoItem">
-        <td><input type="checkbox" value={this.state.id} name="selectedRepo" checked={this.props.checked} /></td>
+        <td><input type="checkbox" value={this.state.id} name="selectedRepo" checked={this.props.checked} onChange={this.props.onToggle} /></td>
         <td><a href={this.props.repo.html_url}>{this.props.repo.name}</a></td>
         <td><button onClick={this.props.onDestroy}>Delete</button></td>
       </tr>
@@ -40,9 +40,9 @@ var RepoBox = React.createClass({
     var token;
     if (token = sessionStorage.getItem("access_token")) {
       this.props.access_token = token;
-      return {authorized: true}
+      return {authorized: true, selected: []}
     }
-    return {authorized: false, checkAll: false, repoCount: 0};
+    return {authorized: false, selected: [], repoCount: 0};
   },
 
   componentDidMount: function () {
@@ -54,6 +54,7 @@ var RepoBox = React.createClass({
         } else {
           this.setState({authorized: false})
         }
+        this.setState({selected: []})
       }.bind(this))
     }
   },
@@ -83,8 +84,15 @@ var RepoBox = React.createClass({
   },
   
   toggleAll: function (e) {
-    //e.target.checked
-    this.setState({checkAll: !this.state.checkAll})
+    if (!e.target.checked) {
+      return this.setState({selected: []})
+    }
+    var selected = this.props.repo.map(function (r) {
+      return r.id
+    })
+    
+    console.log(selected)
+    this.setState({selected: selected})
   },
 
   destroyAll: function (e) {
@@ -92,14 +100,16 @@ var RepoBox = React.createClass({
   },
   
   toggle: function (repo) {
-    this.props.selected = this.props.selected || [];
-    if (e.target.checked) {
-      this.props.selected.push(repo.id)
-    } else {
-      this.props.selected = this.props.selected.filter(function (r) {
-        return r.id != repo.id
+    var selected = this.state.selected || [];
+    if (selected.indexOf(repo.id)>=0) {
+      selected = selected.filter(function (repoId) {
+        return repoId != repo.id
       })
+    } else {
+      selected.push(repo.id)
     }
+    console.log(selected)
+    this.setState({selected: selected})
   },
 
   destroy: function (repo) {
@@ -127,6 +137,7 @@ var RepoBox = React.createClass({
           } else {
             this.setState({authorized: false})
           }
+          this.state.selected = []
         }.bind(this))
       } else {
         this.setState({authorized: false});
@@ -160,7 +171,7 @@ var RepoBox = React.createClass({
                 repo={repo} 
                 key={repo.id} 
                 id={repo.id} 
-                checked={this.state.checkAll? "checked":''}
+                checked={this.state.selected.indexOf(repo.id)>=0? "checked":''}
                 onDestroy={this.destroy.bind(this, repo)}
                 onToggle={this.toggle.bind(this, repo)}
                 />)
