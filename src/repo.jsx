@@ -1,7 +1,18 @@
 /** @jsx React.DOM */
+var RepoHeader = React.createClass({
+  render: function () {
+    return (
+      <tr>
+        <th><input type="checkbox" name="checkAll" value="1" onChange={this.props.onToggleAll} /></th>
+        <th>You have {this.props.repoCount} repos.</th>
+        <th><button onClick={this.props.onRemoveAll} >Remove All</button></th>
+      </tr>
+    )
+  }
+})
+
 var RepoItem = React.createClass({
   delete: function (e) {
-    console.log('Delete this repo' + this.props.repo.id)
   },
   getInitialState: function() {
     return {id: this.props.id, url: this.props.repo.html_url};
@@ -13,12 +24,12 @@ var RepoItem = React.createClass({
   },
 
   render: function() {
-    var url = "http://github.com" + this.props.repo.full_name
+    var url = "http://github.com" + this.props.repo.full_name;
     return (
       <tr className="repoItem">
-        <td><input type="checkbox" value={this.state.id} name="selectedRepo"/></td>
-        <td><a href={this.props.repo.html_url}>{this.props.repo.name} {this.props.repo.html_url} {this.props.id}</a></td>
-        <td><button onClick={this.delete}>Delete</button></td>
+        <td><input type="checkbox" value={this.state.id} name="selectedRepo" checked={this.props.checked} /></td>
+        <td><a href={this.props.repo.html_url}>{this.props.repo.name}</a></td>
+        <td><button onClick={this.props.onDestroy}>Delete</button></td>
       </tr>
     )
   }
@@ -28,10 +39,10 @@ var RepoBox = React.createClass({
   getInitialState: function() {
     var token;
     if (token = sessionStorage.getItem("access_token")) {
-      this.props.access_token = token
+      this.props.access_token = token;
       return {authorized: true}
     }
-    return {authorized: false};
+    return {authorized: false, checkAll: false, repoCount: 0};
   },
 
   componentDidMount: function () {
@@ -39,7 +50,7 @@ var RepoBox = React.createClass({
       this.loadRepo(this.props.access_token, function (data) {
         if (data) {
           this.props.repo = data
-          this.setState({authorized: true})
+          this.setState({authorized: true, repoCount: data.length})
         } else {
           this.setState({authorized: false})
         }
@@ -50,38 +61,69 @@ var RepoBox = React.createClass({
   loadRepo: function (token, cb) {
     //Grab github data
     var url = "https://api.github.com/user/"
-    $.ajax(url + "repos", {
-      headers: {
-        Accept: "application/vnd.github.v3+json",
-        Authorization: "token " + token
-      },
-      contentType: 'JSON'
-    })
-    .done(function (data) {
-      cb(data)
-    })
-    .fail(function () {
+    var request = new XMLHttpRequest();
+    request.open('GET', url + "repos", true);
+    request.setRequestHeader("Accept", "application/vnd.github.v3+json")
+    request.setRequestHeader("Authorization", "token " + token)
+
+    request.onload = function() {
+      if (request.status >= 200 && request.status < 400){
+        data = JSON.parse(request.responseText);
+        cb(data)
+      } else {
+        cb(null)
+      }
+    };
+
+    request.onerror = function() {
       cb(null)
-    })
+    };
+
+    request.send();
   },
   
-  multiToggle: function (e) {
-    $('.repoItem input[type=checkbox]').prop("checked", $(e.target).prop("checked"))
+  toggleAll: function (e) {
+    //e.target.checked
+    this.setState({checkAll: !this.state.checkAll})
+  },
+
+  destroyAll: function (e) {
+    e.preventDefault();   
+  },
+  
+  toggle: function (repo) {
+    this.props.selected = this.props.selected || [];
+    if (e.target.checked) {
+      this.props.selected.push(repo.id)
+    } else {
+      this.props.selected = this.props.selected.filter(function (r) {
+        return r.id != repo.id
+      })
+    }
+  },
+
+  destroy: function (repo) {
+    if (alert("Are you sure to remove " + repo.name))  {
+      return false 
+    }
+    this.props.repo = this.props.repo.filter(function (r) {
+      return r.id != repo.id
+    })
+    this.setState({repoCount: this.props.repo.length})
   },
 
   handleFetch: function (e) {
-    //http://stackoverflow.com/questions/24073392/onclick-is-firing-right-away
     e.preventDefault();
-    OAuth.initialize('ei8Oo3tvYIssBSbrxeaxVi5v9Ck') //OAuth.io public key
+    OAuth.initialize('ei8Oo3tvYIssBSbrxeaxVi5v9Ck') 
     OAuth.popup('github')
-    .done(function(result) { //OAuth.io provider
+    .done(function(result) { 
       if (result.access_token) {
         sessionStorage.setItem("access_token", result.access_token);
         this.props.access_token = result.access_token
         this.loadRepo(result.access_token, function (data) {
           if (data) {
             this.props.repo = data
-            this.setState({authorized: true});
+            this.setState({authorized: true, repoCount: data.length});
           } else {
             this.setState({authorized: false})
           }
@@ -92,7 +134,6 @@ var RepoBox = React.createClass({
       }
     }.bind(this))
     .fail(function () {
-      console.log("Fail")  
       this.setState({authorized: false});
     }.bind(this))
   },
@@ -113,19 +154,25 @@ var RepoBox = React.createClass({
         </div>
       );
     }
-
     var rows = []
     this.props.repo.forEach(function (repo) {
-      rows.push(<RepoItem repo={repo} key={repo.id} id={repo.id} />)
+      rows.push(<RepoItem 
+                repo={repo} 
+                key={repo.id} 
+                id={repo.id} 
+                checked={this.state.checkAll? "checked":''}
+                onDestroy={this.destroy.bind(this, repo)}
+                onToggle={this.toggle.bind(this, repo)}
+                />)
     }.bind(this))
     return (
       <table>
       <thead>
-      <tr>
-      <th><input type="checkbox" name="checkAll" value="1" onChange={this.multiToggle} /></th>
-      <th>Name</th>
-      <th></th>
-      </tr>
+        <RepoHeader 
+        repoCount={this.state.repoCount}
+        onToggleAll={this.toggleAll}
+        onRemoveAll={this.destroyAll}
+        />
       </thead>
       <tbody>
       {rows}
