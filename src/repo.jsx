@@ -12,11 +12,10 @@ var RepoHeader = React.createClass({
 })
 
 var RepoItem = React.createClass({
-  delete: function (e) {
-  },
   getInitialState: function() {
     return {id: this.props.id, url: this.props.repo.html_url};
   },
+
   componentDidMount: function () {
     if (this.isMounted()) {
       this.setState({id: this.props.id, url: this.props.repo.html_url}) 
@@ -47,15 +46,7 @@ var RepoBox = React.createClass({
 
   componentDidMount: function () {
     if (this.state.authorized) {
-      this.loadRepo(this.props.access_token, function (data) {
-        if (data) {
-          this.props.repo = data
-          this.setState({authorized: true, repoCount: data.length})
-        } else {
-          this.setState({authorized: false})
-        }
-        this.setState({selected: []})
-      }.bind(this))
+      this.loadRepo(this.props.access_token, this.setRepo.bind(this))
     }
   },
 
@@ -82,44 +73,68 @@ var RepoBox = React.createClass({
 
     request.send();
   },
+
+  setRepo: function (data) {
+    if (data) {
+      this.setState({authorized: true, repo: data})
+    } else {
+      this.setState({authorized: false})
+    }
+    this.setState({selected: []}) 
+  },
   
   toggleAll: function (e) {
-    if (!e.target.checked) {
-      return this.setState({selected: []})
+    var selected =[]
+    if (e.target.checked) {
+      selected = this.state.repo.map(function (r, index) {
+        return index
+      })
     }
-    var selected = this.props.repo.map(function (r) {
-      return r.id
-    })
-    
     console.log(selected)
     this.setState({selected: selected})
   },
 
   destroyAll: function (e) {
     e.preventDefault();   
+    this.state.selected.forEach(function (repoId) {
+      console.log("Remove Repo " + repoId)
+      var repo = this.state.repo.filter(function (repo, index) {
+        return index != repoId
+      })
+      this.setState({repo: repo})
+    }.bind(this))
   },
   
-  toggle: function (repo) {
+  toggle: function (repo, index) {
+    console.log(index)
     var selected = this.state.selected || [];
-    if (selected.indexOf(repo.id)>=0) {
-      selected = selected.filter(function (repoId) {
-        return repoId != repo.id
+    if (selected.indexOf(index)>=0) {
+      selected = selected.filter(function (repoIndex) {
+        return index != repoIndex
       })
     } else {
-      selected.push(repo.id)
+      selected.push(index)
     }
     console.log(selected)
     this.setState({selected: selected})
   },
 
-  destroy: function (repo) {
+  destroy: function (repo, index) {
     if (alert("Are you sure to remove " + repo.name))  {
       return false 
     }
-    this.props.repo = this.props.repo.filter(function (r) {
-      return r.id != repo.id
-    })
-    this.setState({repoCount: this.props.repo.length})
+    var repo = this.state.repo.filter(function (r, repoIndex) {
+      //unchecked it
+      if (index == repoIndex && this.state.selected.indexOf(repoIndex)>=0) {
+        var selected = this.state.selected || [];
+        selected = selected.filter(function (repoIndex) {
+          return index != repoIndex
+        })
+        this.setState({selected: selected})
+      }
+      return index != repoIndex
+    }.bind(this))
+    this.setState({repo: repo})
   },
 
   handleFetch: function (e) {
@@ -130,15 +145,7 @@ var RepoBox = React.createClass({
       if (result.access_token) {
         sessionStorage.setItem("access_token", result.access_token);
         this.props.access_token = result.access_token
-        this.loadRepo(result.access_token, function (data) {
-          if (data) {
-            this.props.repo = data
-            this.setState({authorized: true, repoCount: data.length});
-          } else {
-            this.setState({authorized: false})
-          }
-          this.state.selected = []
-        }.bind(this))
+        this.loadRepo(result.access_token, this.setRepo.bind(this))
       } else {
         this.setState({authorized: false});
         return
@@ -158,7 +165,7 @@ var RepoBox = React.createClass({
         </div>
       );
     }
-    if (typeof this.props.repo == 'undefined') {
+    if (typeof this.state.repo == 'undefined') {
       return (
         <div>
           <h4>Fetching your repo...</h4>
@@ -166,21 +173,21 @@ var RepoBox = React.createClass({
       );
     }
     var rows = []
-    this.props.repo.forEach(function (repo) {
+    this.state.repo.forEach(function (repo, index) {
       rows.push(<RepoItem 
                 repo={repo} 
                 key={repo.id} 
                 id={repo.id} 
-                checked={this.state.selected.indexOf(repo.id)>=0? "checked":''}
-                onDestroy={this.destroy.bind(this, repo)}
-                onToggle={this.toggle.bind(this, repo)}
+                checked={this.state.selected.indexOf(index)>=0? "checked":''}
+                onDestroy={this.destroy.bind(this, repo, index)}
+                onToggle={this.toggle.bind(this, repo, index)}
                 />)
     }.bind(this))
     return (
       <table>
       <thead>
         <RepoHeader 
-        repoCount={this.state.repoCount}
+        repoCount={this.state.repo.length}
         onToggleAll={this.toggleAll}
         onRemoveAll={this.destroyAll}
         />
