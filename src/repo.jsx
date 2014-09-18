@@ -96,13 +96,14 @@ var RepoBox = React.createClass({
 
   destroyAll: function (e) {
     e.preventDefault();   
-    this.state.selected.forEach(function (repoId) {
-      console.log("Remove Repo " + repoId)
-      var repo = this.state.repo.filter(function (repo, index) {
-        return index != repoId
-      })
-      this.setState({repo: repo})
+    var repo = this.state.repo.filter(function (repo, repoIndex) {
+      if (this.state.selected.indexOf(repoIndex)>=0) {
+        console.log("Remove Repo " + repoIndex)
+        return false
+      }
+      return true
     }.bind(this))
+    this.setState({repo: repo, selected: []})
   },
   
   toggle: function (repo, index) {
