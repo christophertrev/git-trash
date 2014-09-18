@@ -168,8 +168,9 @@ var RepoBox = React.createClass({
     }
     if (typeof this.state.repo == 'undefined') {
       return (
-        <div>
+        <div  className="loader-container">
           <h4>Fetching your repo...</h4>
+            <div className="loader"></div>
         </div>
       );
     }
