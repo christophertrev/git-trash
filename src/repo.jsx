@@ -5,7 +5,7 @@ var RepoHeader = React.createClass({
       <tr>
         <th><input type="checkbox" name="checkAll" value="1" onChange={this.props.onToggleAll} /></th>
         <th>You have {this.props.repoCount} repos.</th>
-        <th><button onClick={this.props.onRemoveAll} >Remove All</button></th>
+        <th><button className="pure-button pure-button-primary" onClick={this.props.onRemoveAll} >Remove Selected</button></th>
       </tr>
     )
   }
@@ -28,7 +28,7 @@ var RepoItem = React.createClass({
       <tr className="repoItem">
         <td><input type="checkbox" value={this.state.id} name="selectedRepo" checked={this.props.checked} onChange={this.props.onToggle} /></td>
         <td><a href={this.props.repo.html_url}>{this.props.repo.name}</a></td>
-        <td><button onClick={this.props.onDestroy}>Delete</button></td>
+        <td><button className="pure-button" onClick={this.props.onDestroy}>Delete</button></td>
       </tr>
     )
   }
@@ -161,8 +161,8 @@ var RepoBox = React.createClass({
     if (!this.state.authorized) {
       return (
         <div className="repoBox">
-        <h4>Your repos</h4>
-        <button onClick={this.handleFetch}>Login</button>
+        <h4>Please login to Github to authorize permission</h4>
+        <button className="pure-button pure-primary-button" onClick={this.handleFetch}>Login via Github</button>
         </div>
       );
     }
@@ -185,7 +185,7 @@ var RepoBox = React.createClass({
                 />)
     }.bind(this))
     return (
-      <table>
+      <table className="pure-table pure-table-horizontal">
       <thead>
         <RepoHeader 
         repoCount={this.state.repo.length}
@@ -196,6 +196,13 @@ var RepoBox = React.createClass({
       <tbody>
       {rows}
       </tbody>
+      <tfoot>
+        <RepoHeader 
+        repoCount={this.state.repo.length}
+        onToggleAll={this.toggleAll}
+          onRemoveAll={this.destroyAll}
+        />
+      </tfoot>
       </table>
     );
   }
