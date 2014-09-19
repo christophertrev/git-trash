@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 var React = require('react')
+   ,OAuth = require('oauth')
 ;
 
 var RepoHeader = React.createClass({

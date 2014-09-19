@@ -18659,8 +18659,10 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":29}],147:[function(require,module,exports){
+(function (global){
 /** @jsx React.DOM */
 var React = require('react')
+   ,OAuth = (typeof window !== "undefined" ? window.OAuth : typeof global !== "undefined" ? global.OAuth : null)
 ;
 
 var RepoHeader = React.createClass({displayName: 'RepoHeader',
@@ -18878,4 +18880,5 @@ React.renderComponent(
   document.getElementById('app')
 );
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"react":146}]},{},[1]);
