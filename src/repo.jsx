@@ -27,11 +27,19 @@ var RepoItem = React.createClass({
 
   render: function() {
     var url = "http://github.com" + this.props.repo.full_name
+
     return (
-      <tr className="repoItem">
+      <tr className={"repoItem " + (this.props.repo.isRemoving? 'isRemoving':'')}>
         <td><input type="checkbox" value={this.state.id} name="selectedRepo" checked={this.props.checked} onChange={this.props.onToggle} /></td>
         <td><a href={this.props.repo.html_url}>{this.props.repo.name}</a></td>
-        <td><button className="pure-button" onClick={this.props.onDestroy}>Delete</button></td>
+        <td>
+          <button className="pure-button" onClick={this.props.onDestroy}>Delete</button>
+          <div className="load-container">
+            Removing...
+            <div className="loaderbar">Removing...</div>
+          </div>  
+        </td>
+
       </tr>
     )
   }
@@ -51,6 +59,41 @@ var RepoBox = React.createClass({
     if (this.state.authorized) {
       this.loadRepo(this.props.access_token, this.setRepo.bind(this))
     }
+  },
+
+  removeRepo: function (token, repoId, cb) {
+    //Grab github data
+    var repo = this.state.repo.map(function (repo) {
+      if (repoId == repo.id) {
+        repo.isRemoving = true
+      }
+      return repo
+    })
+    this.setState({repo: repo})
+    return;
+    var url = "https://api.github.com/user/"
+    var request = new XMLHttpRequest()
+    request.open('GET', url + "repos/" + repo, true)
+    request.setRequestHeader("Accept", "application/vnd.github.v3+json")
+    request.setRequestHeader("Authorization", "token " + token)
+
+    request.onload = function() {
+      if (request.status >= 200 && request.status < 400){
+        //this.props.repo = this.props.repo.map(function (repo) {
+          //if (repoId == repo.id) {
+            //return null
+          //}
+          //return repo
+        //})
+        return cb(true)
+      }
+      cb(false)
+    }
+
+    request.onerror = function() {
+      cb(false)
+    }
+    request.send()
   },
 
   loadRepo: function (token, cb) {
@@ -127,18 +170,20 @@ var RepoBox = React.createClass({
     if (alert("Are you sure to remove " + repo.name))  {
       return false 
     }
-    var repo = this.state.repo.filter(function (r, repoIndex) {
-      //unchecked it
-      if (index == repoIndex && this.state.selected.indexOf(repoIndex)>=0) {
-        var selected = this.state.selected || [];
-        selected = selected.filter(function (repoIndex) {
-          return index != repoIndex
-        })
-        this.setState({selected: selected})
-      }
-      return index != repoIndex
+    this.removeRepo(this.props.access_token, repo.id, function (result) {
+      var repo = this.state.repo.filter(function (r, repoIndex) {
+        //unchecked it
+        if (index == repoIndex && this.state.selected.indexOf(repoIndex)>=0) {
+          var selected = this.state.selected || [];
+          selected = selected.filter(function (repoIndex) {
+            return index != repoIndex
+          })
+          this.setState({selected: selected})
+        }
+        return index != repoIndex
+      }.bind(this))
+      this.setState({repo: repo})
     }.bind(this))
-    this.setState({repo: repo})
   },
 
   handleFetch: function (e) {
