@@ -18,12 +18,14 @@ gulp.task('clean', function(cb) {
   del(['build/*.js'], cb)
 })
 
+//lins is external library vendors which aren't browserify compatible (CommonJS)
 gulp.task("libs", function () {
   gulp.src(paths.libs)
     .pipe(concat('libs.js'))
     .pipe(gulp.dest("./build"))
 })
 
+//scripts is our script and, optionaly, vendors which are browserify
 gulp.task("scripts", ['clean', 'libs'], function() {
   browserify(paths.index_js)
     .transform(reactify)
@@ -33,6 +35,7 @@ gulp.task("scripts", ['clean', 'libs'], function() {
 
 })
 
+//refresh when we change
 gulp.task('watch', function() {
   gulp.watch('src/*.*', ['scripts'])
 })
