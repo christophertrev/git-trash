@@ -1,4 +1,7 @@
 /** @jsx React.DOM */
+var React = require('react')
+;
+
 var RepoHeader = React.createClass({
   render: function () {
     return (
