@@ -15,6 +15,11 @@ With Git-Trash, you just click on the Delete button and Done
 
 Be carefully, this tool remove your Github repo
 
+# Build
+
+$ bower install
+$ gulp scripts
+
 # Screenshot
 
 ![Main Screen](https://raw.githubusercontent.com/kureikain/git-trash/master/shots/main.png "Git Trash")

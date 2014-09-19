@@ -1,21 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Github Trash</title>
+<meta charset='utf-8'>
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
 <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+<title>Git-trash by kureikain</title>
 <style>
+#container {
+  width: 100%;
+}
+#app, .inner {
+  width: 640px;
+  margin: auto;
+}
 #app table{
   margin: auto;
 }
 /*http://projects.lukehaas.me/css-loaders/*/
 .load-container {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-sizing: border-box;
-    float: left;
-    height: 240px;
-    overflow: hidden;
-    position: relative;
-    width: 240px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-sizing: border-box;
+  float: left;
+  height: 240px;
+  overflow: hidden;
+  position: relative;
+  width: 240px;
 }
 .loader {
   margin: 6em auto;
@@ -57,13 +66,34 @@
 }
 
 </style>
-</head>
-<body>
 
-<div id="app"></div>
+
+</head>
+
+<body>
+<div id="container">
+  <div class="inner">
+
+
+    <section id="main_content">
+      <h3>
+        <a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Trash your Git repository quickly.</h3>
+
+      <p>
+      After awhile using Git, I ends up with way too much repository. Go over and
+      delete them one by one is just waste my time. 
+      </p>
+
+
+      <div id="app"></div>
+    </section>
+
+  </div>
+</div>
 
 <script src="build/libs.js?v=4" ></script>
 <script src="build/main.js?v=4" ></script>
 
 </body>
 </html>
+

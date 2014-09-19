@@ -15,7 +15,7 @@ var  paths                                   = {
 }
 
 gulp.task('clean', function(cb) {
-  del(['build/*.js'], cb)
+  del(['build'], cb)
 })
 
 //lins is external library vendors which aren't browserify compatible (CommonJS)

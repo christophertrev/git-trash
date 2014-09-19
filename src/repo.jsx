@@ -1,7 +1,6 @@
 /** @jsx React.DOM */
 var React = require('react')
-   ,OAuth = require('oauth')
-;
+   ,OAuth = require('oauth');
 
 var RepoHeader = React.createClass({
   render: function () {
@@ -17,7 +16,7 @@ var RepoHeader = React.createClass({
 
 var RepoItem = React.createClass({
   getInitialState: function() {
-    return {id: this.props.id, url: this.props.repo.html_url};
+    return {id: this.props.id, url: this.props.repo.html_url}
   },
 
   componentDidMount: function () {
@@ -27,7 +26,7 @@ var RepoItem = React.createClass({
   },
 
   render: function() {
-    var url = "http://github.com" + this.props.repo.full_name;
+    var url = "http://github.com" + this.props.repo.full_name
     return (
       <tr className="repoItem">
         <td><input type="checkbox" value={this.state.id} name="selectedRepo" checked={this.props.checked} onChange={this.props.onToggle} /></td>
@@ -57,8 +56,8 @@ var RepoBox = React.createClass({
   loadRepo: function (token, cb) {
     //Grab github data
     var url = "https://api.github.com/user/"
-    var request = new XMLHttpRequest();
-    request.open('GET', url + "repos", true);
+    var request = new XMLHttpRequest()
+    request.open('GET', url + "repos", true)
     request.setRequestHeader("Accept", "application/vnd.github.v3+json")
     request.setRequestHeader("Authorization", "token " + token)
 
@@ -69,13 +68,13 @@ var RepoBox = React.createClass({
       } else {
         cb(null)
       }
-    };
+    }
 
     request.onerror = function() {
       cb(null)
-    };
+    }
 
-    request.send();
+    request.send()
   },
 
   setRepo: function (data) {
