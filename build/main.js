@@ -18670,7 +18670,7 @@ var RepoHeader = React.createClass({displayName: 'RepoHeader',
       React.DOM.tr(null, 
         React.DOM.th(null, React.DOM.input({type: "checkbox", name: "checkAll", value: "1", onChange: this.props.onToggleAll})), 
         React.DOM.th(null, "You have ", this.props.repoCount, " repos."), 
-        React.DOM.th(null, React.DOM.button({className: "pure-button pure-button-primary", onClick: this.props.onRemoveAll}, "Remove Selected"))
+        React.DOM.th(null, React.DOM.button({className: "pure-button pure-button-primary", onClick: this.props.onRemoveAll}, "Remove Selected(", this.props.selectedCount, ")"))
       )
     )
   }
@@ -18689,11 +18689,19 @@ var RepoItem = React.createClass({displayName: 'RepoItem',
 
   render: function() {
     var url = "http://github.com" + this.props.repo.full_name
+
     return (
-      React.DOM.tr({className: "repoItem"}, 
+      React.DOM.tr({className: "repoItem " + (this.props.repo.isRemoving? 'isRemoving':'')}, 
         React.DOM.td(null, React.DOM.input({type: "checkbox", value: this.state.id, name: "selectedRepo", checked: this.props.checked, onChange: this.props.onToggle})), 
         React.DOM.td(null, React.DOM.a({href: this.props.repo.html_url}, this.props.repo.name)), 
-        React.DOM.td(null, React.DOM.button({className: "pure-button", onClick: this.props.onDestroy}, "Delete"))
+        React.DOM.td(null, 
+          React.DOM.button({className: "pure-button", onClick: this.props.onDestroy}, "Delete"), 
+          React.DOM.div({className: "load-container"}, 
+            "Removing...", 
+            React.DOM.div({className: "loaderbar"}, "Removing...")
+          )
+        )
+
       )
     )
   }
@@ -18715,11 +18723,40 @@ var RepoBox = React.createClass({displayName: 'RepoBox',
     }
   },
 
+  removeRepo: function (token, repoId, cb) {
+    //Grab github data
+    var repo = this.state.repo.map(function (repo) {
+      if (repoId.id == repo.id) {
+        repo.isRemoving = true
+      }
+      return repo
+    })
+    this.setState({repo: repo})
+    //return;
+    var url = "https://api.github.com/repos/"
+    var request = new XMLHttpRequest()
+    request.open('DELETE', url + repoId.full_name, true)
+    request.setRequestHeader("Accept", "application/vnd.github.v3+json")
+    request.setRequestHeader("Authorization", "token " + token)
+
+    request.onload = function() {
+      if (request.status >= 200 && request.status < 400){
+        return cb(true)
+      }
+      cb(false)
+    }
+
+    request.onerror = function() {
+      cb(false)
+    }
+    request.send()
+  },
+
   loadRepo: function (token, cb) {
     //Grab github data
     var url = "https://api.github.com/user/"
     var request = new XMLHttpRequest()
-    request.open('GET', url + "repos", true)
+    request.open('GET', url + "repos?per_page=100", true)
     request.setRequestHeader("Accept", "application/vnd.github.v3+json")
     request.setRequestHeader("Authorization", "token " + token)
 
@@ -18761,10 +18798,17 @@ var RepoBox = React.createClass({displayName: 'RepoBox',
 
   destroyAll: function (e) {
     e.preventDefault();   
+    if (!confirm("Are you sure to remove multiple repos at a time. Be careful, have no undo action!!!")) {
+      return;
+    }
     var repo = this.state.repo.filter(function (repo, repoIndex) {
       if (this.state.selected.indexOf(repoIndex)>=0) {
-        console.log("Remove Repo " + repoIndex)
-        return false
+        //console.log("Remove Repo " + "https://api.github.com/repos/" + repo.full_name)
+        //this.removeRepo(this.props.access_token, repo, function () {
+        
+        //})
+        //return false
+        return this.destroy(repo, repoIndex)
       }
       return true
     }.bind(this))
@@ -18786,21 +18830,23 @@ var RepoBox = React.createClass({displayName: 'RepoBox',
   },
 
   destroy: function (repo, index) {
-    if (alert("Are you sure to remove " + repo.name))  {
+    if (!confirm("Are you sure to remove " + repo.name))  {
       return false 
     }
-    var repo = this.state.repo.filter(function (r, repoIndex) {
-      //unchecked it
-      if (index == repoIndex && this.state.selected.indexOf(repoIndex)>=0) {
-        var selected = this.state.selected || [];
-        selected = selected.filter(function (repoIndex) {
-          return index != repoIndex
-        })
-        this.setState({selected: selected})
-      }
-      return index != repoIndex
+    this.removeRepo(this.props.access_token, repo, function (result) {
+      var repo = this.state.repo.filter(function (r, repoIndex) {
+        //unchecked it
+        if (index == repoIndex && this.state.selected.indexOf(repoIndex)>=0) {
+          var selected = this.state.selected || [];
+          selected = selected.filter(function (repoIndex) {
+            return index != repoIndex
+          })
+          this.setState({selected: selected})
+        }
+        return index != repoIndex
+      }.bind(this))
+      this.setState({repo: repo})
     }.bind(this))
-    this.setState({repo: repo})
   },
 
   handleFetch: function (e) {
@@ -18855,6 +18901,7 @@ var RepoBox = React.createClass({displayName: 'RepoBox',
       React.DOM.thead(null, 
         RepoHeader({
         repoCount: this.state.repo.length, 
+        selectedCount: this.state.selected.length, 
         onToggleAll: this.toggleAll, 
         onRemoveAll: this.destroyAll}
         )
