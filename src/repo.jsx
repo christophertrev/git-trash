@@ -8,7 +8,7 @@ var RepoHeader = React.createClass({
       <tr>
         <th><input type="checkbox" name="checkAll" value="1" onChange={this.props.onToggleAll} /></th>
         <th>You have {this.props.repoCount} repos.</th>
-        <th><button className="pure-button pure-button-primary" onClick={this.props.onRemoveAll} >Remove Selected</button></th>
+        <th><button className="pure-button pure-button-primary" onClick={this.props.onRemoveAll} >Remove Selected({this.props.selectedCount})</button></th>
       </tr>
     )
   }
@@ -141,8 +141,12 @@ var RepoBox = React.createClass({
     }
     var repo = this.state.repo.filter(function (repo, repoIndex) {
       if (this.state.selected.indexOf(repoIndex)>=0) {
-        console.log("Remove Repo " + "https://api.github.com/repos/" + repo.full_name)
-        return false
+        //console.log("Remove Repo " + "https://api.github.com/repos/" + repo.full_name)
+        //this.removeRepo(this.props.access_token, repo, function () {
+        
+        //})
+        //return false
+        return this.destroy(repo, repoIndex)
       }
       return true
     }.bind(this))
@@ -164,7 +168,7 @@ var RepoBox = React.createClass({
   },
 
   destroy: function (repo, index) {
-    if (confirm("Are you sure to remove " + repo.name))  {
+    if (!confirm("Are you sure to remove " + repo.name))  {
       return false 
     }
     this.removeRepo(this.props.access_token, repo, function (result) {
@@ -235,6 +239,7 @@ var RepoBox = React.createClass({
       <thead>
         <RepoHeader 
         repoCount={this.state.repo.length}
+        selectedCount={this.state.selected.length}
         onToggleAll={this.toggleAll}
         onRemoveAll={this.destroyAll}
         />
