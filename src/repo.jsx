@@ -64,27 +64,21 @@ var RepoBox = React.createClass({
   removeRepo: function (token, repoId, cb) {
     //Grab github data
     var repo = this.state.repo.map(function (repo) {
-      if (repoId == repo.id) {
+      if (repoId.id == repo.id) {
         repo.isRemoving = true
       }
       return repo
     })
     this.setState({repo: repo})
-    return;
-    var url = "https://api.github.com/user/"
+    //return;
+    var url = "https://api.github.com/repos/"
     var request = new XMLHttpRequest()
-    request.open('GET', url + "repos/" + repo, true)
+    request.open('DELETE', url + repoId.full_name, true)
     request.setRequestHeader("Accept", "application/vnd.github.v3+json")
     request.setRequestHeader("Authorization", "token " + token)
 
     request.onload = function() {
       if (request.status >= 200 && request.status < 400){
-        //this.props.repo = this.props.repo.map(function (repo) {
-          //if (repoId == repo.id) {
-            //return null
-          //}
-          //return repo
-        //})
         return cb(true)
       }
       cb(false)
@@ -100,7 +94,7 @@ var RepoBox = React.createClass({
     //Grab github data
     var url = "https://api.github.com/user/"
     var request = new XMLHttpRequest()
-    request.open('GET', url + "repos", true)
+    request.open('GET', url + "repos?per_page=100", true)
     request.setRequestHeader("Accept", "application/vnd.github.v3+json")
     request.setRequestHeader("Authorization", "token " + token)
 
@@ -142,9 +136,12 @@ var RepoBox = React.createClass({
 
   destroyAll: function (e) {
     e.preventDefault();   
+    if (!confirm("Are you sure to remove multiple repos at a time. Be careful, have no undo action!!!")) {
+      return;
+    }
     var repo = this.state.repo.filter(function (repo, repoIndex) {
       if (this.state.selected.indexOf(repoIndex)>=0) {
-        console.log("Remove Repo " + repoIndex)
+        console.log("Remove Repo " + "https://api.github.com/repos/" + repo.full_name)
         return false
       }
       return true
@@ -167,10 +164,10 @@ var RepoBox = React.createClass({
   },
 
   destroy: function (repo, index) {
-    if (alert("Are you sure to remove " + repo.name))  {
+    if (confirm("Are you sure to remove " + repo.name))  {
       return false 
     }
-    this.removeRepo(this.props.access_token, repo.id, function (result) {
+    this.removeRepo(this.props.access_token, repo, function (result) {
       var repo = this.state.repo.filter(function (r, repoIndex) {
         //unchecked it
         if (index == repoIndex && this.state.selected.indexOf(repoIndex)>=0) {
