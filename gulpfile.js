@@ -11,7 +11,7 @@ var  paths                                   = {
   css: ['src/css/**/*.styl'],
   index_js: ['./src/main.jsx'],
   js: ['src/js/*.js'],
-  libs: ['./build/vendors/oauth-js/dist/oauth.js'],
+  libs: ['./vendor/oauth-js/dist/oauth.js'],
 }
 
 gulp.task('clean', function(cb) {
