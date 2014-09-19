@@ -8,14 +8,12 @@ var gulp                                     = require('gulp'),
   react                                      = require("gulp-react");
 
 var  paths                                   = {
-  css: ['src/css/**/*.styl'],
   index_js: ['./src/main.jsx'],
-  js: ['src/js/*.js'],
   libs: ['./vendor/oauth-js/dist/oauth.js'],
 }
 
 gulp.task('clean', function(cb) {
-  del(['build'], cb)
+  del(['build/*'], cb)
 })
 
 //lins is external library vendors which aren't browserify compatible (CommonJS)
