@@ -259,7 +259,8 @@ var RepoBox = React.createClass({
   }
 });
 
-React.renderComponent(
-  <RepoBox />,
-  document.getElementById('app')
-);
+module.exports = {
+  RepoHeader: RepoHeader,
+  RepoItem: RepoItem,
+  RepoBox: RepoBox
+}
