@@ -30,7 +30,11 @@
 </div>
 
 <script src="build/libs-test.js?v=4" ></script>
-<script src="build/main-test.js?v=5" ></script>
+<script type="text/javascript">
+  var s = document.createElement( 'script' );
+  s.setAttribute( 'src', 'build/main-test.js?' + new Date().getTime() );
+  document.body.appendChild(s);
+</script>
 
 </body>
 </html>
