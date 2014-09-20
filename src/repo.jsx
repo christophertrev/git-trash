@@ -154,7 +154,6 @@ var RepoBox = React.createClass({
   },
   
   toggle: function (repo, index) {
-    console.log(index)
     var selected = this.state.selected || [];
     if (selected.indexOf(index)>=0) {
       selected = selected.filter(function (repoIndex) {
@@ -163,7 +162,6 @@ var RepoBox = React.createClass({
     } else {
       selected.push(index)
     }
-    console.log(selected)
     this.setState({selected: selected})
   },
 
