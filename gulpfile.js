@@ -10,10 +10,11 @@ var gulp                                     = require('gulp'),
 var  paths                                   = {
   index_js: ['./src/main.jsx'],
   libs: ['./vendor/oauth-js/dist/oauth.js'],
+  libs_test: ['./vendor/oauth-js/dist/oauth.js', './node_modules/mocha/mocha.js'],
 }
 
 gulp.task('clean', function(cb) {
-  del(['build/*'], cb)
+  del(['build/*.*'], cb)
 })
 
 //lins is external library vendors which aren't browserify compatible (CommonJS)
@@ -33,9 +34,26 @@ gulp.task("scripts", ['clean', 'libs'], function() {
 
 })
 
+gulp.task("test", ['libs'], function() {
+  gulp.src(['./node_modules/mocha/mocha.css'])
+    .pipe(concat('test.css'))
+    .pipe(gulp.dest('./build'));
+
+  gulp.src(paths.libs_test)
+    .pipe(concat('libs-test.js'))
+    .pipe(gulp.dest("./build"))   
+
+  browserify('./test/repo.jsx')
+    .transform(reactify)
+    .bundle()
+    .pipe(source("main-test.js"))
+    .pipe(gulp.dest("./build"))
+
+})
 //refresh when we change
 gulp.task('watch', function() {
   gulp.watch('src/*.*', ['scripts'])
+  gulp.watch('test/*.*', ['test'])
 })
 
 
