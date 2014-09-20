@@ -130,7 +130,6 @@ var RepoBox = React.createClass({
         return index
       })
     }
-    console.log(selected)
     this.setState({selected: selected})
   },
 

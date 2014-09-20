@@ -89,25 +89,41 @@ describe('RepoBox', function () {
   var instance = ReactTestUtils.renderIntoDocument(
     repo.RepoBox(null)
   )
-  instance.props.repo = [{id: 1}, {id: 2}, {id: 3}]     
-
-  it('#render', function () {
-    assert.equal(instance.getDOMNode().nodeName, 'DIV', "Don't render");
-    assert.equal(instance.getDOMNode().className, 'repoBox', "Don't render");
-  })
-  
-  it('#toggle', function () {
-    instance.toggle({id: 2}, 1)
-    assert.equal(instance.state.selected[0], 1, "Selected first element")
-    instance.toggle({id: 3}, 2)
-    assert.equal(instance.state.selected[1], 2, "Selected second element")
-    instance.toggle({id: 3}, 2)
-    assert.notOk(instance.state.selected[1], "Unselected an element")
-    assert.notOk(instance.state.selected[0], "Unselected an element")
+  var repos = [{id: 1}, {id: 2}, {id: 3}]     
+  instance.setState({repo: repos})
+  describe('#render', function () {
+    it('output the content', function () {
+      assert.equal(instance.getDOMNode().nodeName, 'DIV', "Don't render");
+      assert.equal(instance.getDOMNode().className, 'repoBox', "Don't render");
+    })
   })
 
-  it('#toggleAll', function () {
-  
+  describe('#toggle', function () {
+    it('check an element', function() {
+      instance.toggle(repos[1], 1)
+      assert.equal(instance.state.selected[0], 1, "Selected first element")
+      instance.toggle(repos[2], 2)
+      assert.equal(instance.state.selected[1], 2, "Selected second element")
+    })
+
+    it('uncheck an element', function () {
+      instance.toggle(repos[2], 2)
+      assert.notOk(instance.state.selected[1], "Unselected an element")
+      instance.toggle(repos[1], 1)
+      assert.notOk(instance.state.selected[0], "Unselected an element")
+    })
+  })
+
+  describe('#toggleAll', function () {
+    it('check all', function () {
+      instance.toggleAll({target: {checked: true}})
+      assert.lengthOf(instance.state.selected, 3, 'Selected all of 3')
+      assert.equal(instance.state.selected[0], 0, 'Selected first element')
+    })
+    it('uncheck all', function () {
+      instance.toggleAll({target: {checked: false}})
+      assert.lengthOf(instance.state.selected, 0, 'Selected none')
+    })
   })  
 })
 
@@ -25147,7 +25163,6 @@ var RepoBox = React.createClass({displayName: 'RepoBox',
         return index
       })
     }
-    console.log(selected)
     this.setState({selected: selected})
   },
 

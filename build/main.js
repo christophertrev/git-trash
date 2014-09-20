@@ -18800,7 +18800,6 @@ var RepoBox = React.createClass({displayName: 'RepoBox',
         return index
       })
     }
-    console.log(selected)
     this.setState({selected: selected})
   },
 
