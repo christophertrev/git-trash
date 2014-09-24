@@ -207,8 +207,9 @@ var RepoBox = React.createClass({
     if (!this.state.authorized) {
       return (
         <div className="repoBox">
-        <h4>Please login to Github to authorize permission</h4>
-        <button className="pure-button pure-primary-button" onClick={this.handleFetch}>Login via Github</button>
+        <h4>Please login to to authorize permission and fetch your repository</h4>
+        <button className="pure-button pure-primary-button" onClick={this.handleFetch.bind(this, 'github')}>Login via Github</button>
+        <button className="pure-button pure-primary-button" onClick={this.handleFetch.bind(this, )}>Login via BitBucket</button>
         </div>
       );
     }
