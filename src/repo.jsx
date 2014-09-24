@@ -57,7 +57,7 @@ var RepoBox = React.createClass({
 
   componentDidMount: function () {
     if (this.state.authorized) {
-      this.loadRepo(this.props.access_token, this.setRepo.bind(this))
+      this.loadRepo('github', this.props.access_token, this.setRepo.bind(this))
     }
   },
 
@@ -90,7 +90,7 @@ var RepoBox = React.createClass({
     request.send()
   },
 
-  loadRepo: function (token, cb) {
+  loadRepo: function (provider, token, cb) {
     //Grab github data
     var url = "https://api.github.com/user/"
     var request = new XMLHttpRequest()
@@ -184,15 +184,16 @@ var RepoBox = React.createClass({
     }.bind(this))
   },
 
-  handleFetch: function (e) {
-    e.preventDefault();
+  handleFetch: function (provider) {
     OAuth.initialize('ei8Oo3tvYIssBSbrxeaxVi5v9Ck') 
-    OAuth.popup('github')
+    OAuth.popup(provider)
     .done(function(result) { 
       if (result.access_token) {
         sessionStorage.setItem("access_token", result.access_token);
+        sessionStorage.setItem("provider", provider);
         this.props.access_token = result.access_token
-        this.loadRepo(result.access_token, this.setRepo.bind(this))
+        this.props.provider = provider
+        this.loadRepo(provider, result.access_token, this.setRepo.bind(this))
       } else {
         this.setState({authorized: false});
         return
@@ -209,7 +210,7 @@ var RepoBox = React.createClass({
         <div className="repoBox">
         <h4>Please login to to authorize permission and fetch your repository</h4>
         <button className="pure-button pure-primary-button" onClick={this.handleFetch.bind(this, 'github')}>Login via Github</button>
-        <button className="pure-button pure-primary-button" onClick={this.handleFetch.bind(this, )}>Login via BitBucket</button>
+        <button className="pure-button pure-primary-button" onClick={this.handleFetch.bind(this,'bitbucket')}>Login via BitBucket</button>
         </div>
       );
     }
