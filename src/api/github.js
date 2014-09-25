@@ -1,5 +1,29 @@
 var api = {}
 
+api.loadRepo = function (token, cb) {
+  //Grab github data
+  var url = "https://api.github.com/user/"
+  var request = new XMLHttpRequest()
+  request.open('GET', url + "repos?per_page=100", true)
+  request.setRequestHeader("Accept", "application/vnd.github.v3+json")
+  request.setRequestHeader("Authorization", "token " + token)
+
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 400){
+      data = JSON.parse(request.responseText);
+      cb(data)
+    } else {
+      cb(null)
+    }
+  }
+
+  request.onerror = function() {
+    cb(null)
+  }
+
+  request.send()
+}
+
 api.removeRepo = function (token, repoId, cb) {
   //Grab github data
   var repo = this.state.repo.map(function (repo) {
