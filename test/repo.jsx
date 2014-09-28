@@ -3,6 +3,7 @@
 var React = require('react');
 var ReactTestUtils = require('react/lib/ReactTestUtils');
 var repo = require('../src/repo.jsx');
+var api = require('api.js');
 var mocha = require('mocha')
   , chai = require('chai')
   , expect = chai.expect
