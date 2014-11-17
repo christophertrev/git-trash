@@ -13,7 +13,7 @@ With Git-Trash, you just click on the Delete button and Done
 
 # Warning
 
-Be carefully, this tool remove your Github repo
+Be carefully, this tool can remove your Github repo
 
 # Build
 
